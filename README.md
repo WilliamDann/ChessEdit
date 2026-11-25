@@ -14,6 +14,7 @@ Open **Edit → Theme…** to personalize the app. Everything applies live:
 - **Board theme** — 25+ boards, from classic brown and plain colors to wood, marble, and metal textures from lichess.org.
 - **Piece theme** — 40+ piece sets, from the classic Staunton-style set to playful ones from lichess.org.
 - **Background transparency** — how much the window shows through.
+- **Window Layout** — customize your editor by snapping any UI element to the top, left, right or bottom like in an IDE.
 
 ## For developers
 
