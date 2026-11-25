@@ -7,7 +7,9 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: var(--bg);
+  /* Single translucent layer for the whole window (see .titlebar and the
+     dockview overrides below — everything above the body is transparent) */
+  background: var(--bg-translucent);
   color: var(--fg);
 }
 
@@ -25,7 +27,9 @@ body {
   align-items: center;
   padding: 0 0 0 16px;
   height: 44px;
-  background: var(--surface);
+  /* Transparent: the body's translucent layer shows through — stacking a
+     second translucent layer here would make the bar nearly opaque */
+  background: transparent;
   border-bottom: 1px solid var(--border);
   -webkit-app-region: drag;
   user-select: none;
@@ -166,6 +170,21 @@ body {
   height: 100%;
 }
 
+/* Dockview themes paint panels opaque (white/#1e1e1e…), which would hide
+   the window translucency entirely — the dock area covers everything below
+   the title bar. Neutralize all of its surface colors so the single
+   translucent body layer shows through; separation comes from borders. */
+.dock-area .dockview-theme-light,
+.dock-area .dockview-theme-dark {
+  --dv-group-view-background-color: transparent;
+  --dv-tabs-and-actions-container-background-color: transparent;
+  --dv-activegroup-visiblepanel-tab-background-color: transparent;
+  --dv-activegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-inactivegroup-visiblepanel-tab-background-color: transparent;
+  --dv-inactivegroup-hiddenpanel-tab-background-color: transparent;
+  --dv-tab-divider-color: transparent;
+}
+
 /* Breathing room inside every dock panel */
 .dock-area .dv-content-container {
   padding: 12px;
@@ -175,4 +194,303 @@ body {
 .tree-nav {
   height: 100%;
   overflow-y: auto;
+}
+
+/* ── Modal dialogs (ThemeDialog) ─────────────────────────────────────────── */
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--scrim);
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  width: 75vw;
+  max-width: calc(100vw - 48px);
+  max-height: calc(100vh - 48px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* Draggable like the main title bar; controls opt out with no-drag */
+.dialog-titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border-soft);
+  font-weight: 600;
+  font-size: 14px;
+  -webkit-app-region: drag;
+}
+
+.dialog-close {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--fg-muted);
+  font-size: 12px;
+  cursor: pointer;
+  -webkit-app-region: no-drag;
+}
+
+.dialog-close:hover {
+  background: var(--hover);
+  color: var(--fg);
+}
+
+.dialog-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 240px;
+  gap: 14px;
+  padding: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Left column: the collapsible pickers, scrolling independently */
+.dialog-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Right column: live theme preview */
+.dialog-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* App-theme sample: background/foreground with accent + semantic chips */
+.preview-theme {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.preview-aa {
+  margin-right: auto;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.preview-chip {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--border-soft);
+  border-radius: 4px;
+}
+
+/* Mini board: colors/pieces come from the data-*-theme attributes on <html> */
+.board-preview {
+  width: 100%;
+  aspect-ratio: 1;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Too narrow for two columns: stack with the preview below */
+@media (max-width: 640px) {
+  .dialog-body {
+    grid-template-columns: minmax(0, 1fr);
+    overflow-y: auto;
+  }
+
+  .dialog-controls {
+    overflow: visible;
+  }
+}
+
+.dialog-label {
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fg-muted);
+}
+
+/* Collapsible section header: icon beside the label text, clickable */
+.dialog-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0;
+  background: none;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+.dialog-section-toggle:hover {
+  color: var(--fg);
+}
+
+.dialog-section-toggle .chevron {
+  transition: transform 0.15s ease;
+}
+
+.dialog-section-toggle .chevron.collapsed {
+  transform: rotate(-90deg);
+}
+
+/* Theme picker: swatch cards in a wrapping grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.theme-option {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: var(--button-bg);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  color: var(--fg);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.theme-option:hover {
+  border-color: var(--border);
+}
+
+.theme-option.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.theme-swatch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.theme-swatch-accent {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+}
+
+.theme-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.theme-check {
+  margin-left: auto;
+  color: var(--success);
+}
+
+/* Board theme swatch: mini checkerboard, colors set inline per theme */
+.board-swatch {
+  width: 100%;
+  height: 40px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+/* Piece theme cards: text-only, centered */
+.piece-option {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.piece-option .theme-name {
+  justify-content: center;
+}
+
+.piece-option .theme-check {
+  margin-left: 6px;
+}
+
+/* Transparency slider */
+.transparency-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.transparency-row input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+}
+
+.transparency-value {
+  min-width: 42px;
+  text-align: right;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  color: var(--fg-muted);
+}
+
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--border-soft);
+}
+
+.dialog-spacer {
+  flex: 1;
+}
+
+.dialog-btn {
+  padding: 6px 12px;
+  background: var(--button-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--fg);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dialog-btn:hover {
+  background: var(--hover);
 }

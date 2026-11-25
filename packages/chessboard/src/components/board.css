@@ -1,6 +1,8 @@
 @import "@lichess-org/chessground/assets/chessground.base.css";
 @import "@lichess-org/chessground/assets/chessground.brown.css";
 @import "@lichess-org/chessground/assets/chessground.cburnett.css";
+@import "./board-themes.css";
+@import "./piece-themes.css";
 
 .chessboard {
   --coord-size: 2rem;

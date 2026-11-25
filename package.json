@@ -5,6 +5,7 @@
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
     "dev": "npm run dev -w desktop",
+    "stop": "fuser -k 5173/tcp 2>/dev/null; pkill -f \"[e]lectron\" 2>/dev/null; true",
     "build": "npm run build -w chessboard && npm run build -w desktop",
     "typecheck": "npm run typecheck -w desktop",
     "start": "npm run build && npm run start -w desktop",

@@ -1,0 +1,109 @@
+/**
+ * Board themes, selected via a data-board-theme attribute on <html>
+ * (set by the desktop app's theme dialog). The default, brown, comes from
+ * chessground.brown.css and needs no attribute.
+ *
+ * Textured boards from lichess (github.com/lichess-org/lila,
+ * public/images/board), referenced as asset files so only the selected
+ * board image is ever loaded.
+ */
+
+[data-board-theme='wood'] cg-board {
+  background-image: url('../assets/boards/wood.jpg');
+}
+
+[data-board-theme='wood2'] cg-board {
+  background-image: url('../assets/boards/wood2.jpg');
+}
+
+[data-board-theme='wood3'] cg-board {
+  background-image: url('../assets/boards/wood3.jpg');
+}
+
+[data-board-theme='wood4'] cg-board {
+  background-image: url('../assets/boards/wood4.jpg');
+}
+
+[data-board-theme='maple'] cg-board {
+  background-image: url('../assets/boards/maple.jpg');
+}
+
+[data-board-theme='maple2'] cg-board {
+  background-image: url('../assets/boards/maple2.jpg');
+}
+
+[data-board-theme='horsey'] cg-board {
+  background-image: url('../assets/boards/horsey.jpg');
+}
+
+[data-board-theme='leather'] cg-board {
+  background-image: url('../assets/boards/leather.jpg');
+}
+
+[data-board-theme='blue'] cg-board {
+  background-image: url('../assets/boards/blue.png');
+}
+
+[data-board-theme='blue2'] cg-board {
+  background-image: url('../assets/boards/blue2.jpg');
+}
+
+[data-board-theme='blue3'] cg-board {
+  background-image: url('../assets/boards/blue3.jpg');
+}
+
+[data-board-theme='canvas'] cg-board {
+  background-image: url('../assets/boards/canvas2.jpg');
+}
+
+[data-board-theme='blue-marble'] cg-board {
+  background-image: url('../assets/boards/blue-marble.jpg');
+}
+
+[data-board-theme='ic'] cg-board {
+  background-image: url('../assets/boards/ic.png');
+}
+
+[data-board-theme='green'] cg-board {
+  background-image: url('../assets/boards/green.png');
+}
+
+[data-board-theme='marble'] cg-board {
+  background-image: url('../assets/boards/marble.jpg');
+}
+
+[data-board-theme='green-plastic'] cg-board {
+  background-image: url('../assets/boards/green-plastic.png');
+}
+
+[data-board-theme='olive'] cg-board {
+  background-image: url('../assets/boards/olive.jpg');
+}
+
+[data-board-theme='grey'] cg-board {
+  background-image: url('../assets/boards/grey.jpg');
+}
+
+[data-board-theme='metal'] cg-board {
+  background-image: url('../assets/boards/metal.jpg');
+}
+
+[data-board-theme='newspaper'] cg-board {
+  background-image: url('../assets/boards/newspaper.svg');
+}
+
+[data-board-theme='chessboart'] cg-board {
+  background-image: url('../assets/boards/chessboart.svg');
+}
+
+[data-board-theme='purple'] cg-board {
+  background-image: url('../assets/boards/purple.png');
+}
+
+[data-board-theme='purple-diag'] cg-board {
+  background-image: url('../assets/boards/purple-diag.png');
+}
+
+[data-board-theme='pink'] cg-board {
+  background-image: url('../assets/boards/pink-pyramid.png');
+}

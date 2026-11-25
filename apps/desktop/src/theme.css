@@ -8,6 +8,8 @@
  */
 :root {
   --bg: #f4f2ee;             /* page background */
+  --bg-alpha: 85%;           /* page background opacity (Edit > Theme) */
+  --bg-translucent: color-mix(in srgb, var(--bg) var(--bg-alpha), transparent);
   --surface: #ffffff;        /* raised surfaces: title bar, menus, panels */
   --border: #d8d4cc;         /* strong borders */
   --border-soft: #e5e1d8;    /* subtle dividers */
@@ -22,6 +24,7 @@
   --pill-bg: #f7f7f7;        /* move pill */
   --pill-border: #ebebeb;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --scrim: rgba(0, 0, 0, 0.4); /* modal dialog overlay */
 
   /* NAG semantic colors */
   --nag-good: green;

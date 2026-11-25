@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { DockviewApi } from 'dockview'
 import { PANELS, addPanel, openDefaultLayout, type PanelId } from './windows/panels'
-import type { Palette } from './themes'
 
 declare global {
   interface Window {
@@ -20,12 +19,7 @@ type Props = {
   onOpen: () => void
   onSave: () => void
   api: DockviewApi | null
-  /** All themes: built-ins merged with user themes */
-  themes: Record<string, Palette>
-  themeId: string
-  onTheme: (id: string) => void
-  onEditMenuOpen: () => void
-  onAddTheme: () => void
+  onOpenThemeDialog: () => void
 }
 
 // ── Menu model ────────────────────────────────────────────────────────────
@@ -35,7 +29,7 @@ type MenuEntry =
   | { kind: 'item'; label: string; onClick: () => void; checked?: boolean; disabled?: boolean }
   | { kind: 'separator' }
 
-function buildMenus({ onOpen, onSave, api, themes, themeId, onTheme, onEditMenuOpen, onAddTheme }: Omit<Props, 'fileName'>): Array<{ label: string; items: MenuEntry[] }> {
+function buildMenus({ onOpen, onSave, api, onOpenThemeDialog }: Omit<Props, 'fileName'>): Array<{ label: string; items: MenuEntry[] }> {
   return [
     {
       label: 'File',
@@ -50,14 +44,7 @@ function buildMenus({ onOpen, onSave, api, themes, themeId, onTheme, onEditMenuO
       label: 'Edit',
       items: [
         // Themes. Future customization options go here.
-        ...Object.entries(themes).map(([id, theme]) => ({
-          kind: 'item' as const,
-          label: theme.label,
-          checked: themeId === id,
-          onClick: () => onTheme(id),
-        })),
-        { kind: 'separator' as const },
-        { kind: 'item' as const, label: 'Add themes…', onClick: onAddTheme },
+        { kind: 'item', label: 'Theme…', onClick: onOpenThemeDialog },
       ],
     },
     {
@@ -145,7 +132,7 @@ function WindowButton({
  * bar is a drag handle; menus, buttons and controls opt out with
  * no-drag. Double-click on empty bar area toggles maximize.
  */
-export default function TitleBar({ fileName, onOpen, onSave, api, themes, themeId, onTheme, onEditMenuOpen, onAddTheme }: Props) {
+export default function TitleBar({ fileName, onOpen, onSave, api, onOpenThemeDialog }: Props) {
   const [open, setOpen] = useState<string | null>(null)
   const [maximized, setMaximized] = useState(false)
   const menubarRef = useRef<HTMLDivElement>(null)
@@ -173,11 +160,29 @@ export default function TitleBar({ fileName, onOpen, onSave, api, themes, themeI
     return window.windowControls.onMaximized(setMaximized)
   }, [])
 
-  const menus = buildMenus({ onOpen, onSave, api, themes, themeId, onTheme, onEditMenuOpen, onAddTheme })
+  const menus = buildMenus({ onOpen, onSave, api, onOpenThemeDialog })
+
+  const renderEntries = (items: MenuEntry[]) =>
+    items.map((entry, i) => {
+      if (entry.kind === 'separator') return <hr key={i} />
+      return (
+        <button
+          key={i}
+          className="menu-item"
+          disabled={entry.disabled}
+          onClick={() => {
+            entry.onClick()
+            setOpen(null)
+          }}
+        >
+          <span className="check">{entry.checked ? '✓' : ''}</span>
+          {entry.label}
+        </button>
+      )
+    })
 
   const selectMenu = (label: string) => {
     setOpen(open === label ? null : label)
-    if (label === 'Edit') onEditMenuOpen() // pick up theme files added since last open
   }
 
   return (
@@ -193,33 +198,13 @@ export default function TitleBar({ fileName, onOpen, onSave, api, themes, themeI
               onMouseEnter={() => {
                 if (open && menu.label !== open) {
                   setOpen(menu.label) // switch menus while one is open
-                  if (menu.label === 'Edit') onEditMenuOpen()
                 }
               }}
             >
               {menu.label}
             </button>
             {open === menu.label && (
-              <div className="menu">
-                {menu.items.map((entry, i) =>
-                  entry.kind === 'separator' ? (
-                    <hr key={i} />
-                  ) : (
-                    <button
-                      key={i}
-                      className="menu-item"
-                      disabled={entry.disabled}
-                      onClick={() => {
-                        entry.onClick()
-                        setOpen(null)
-                      }}
-                    >
-                      <span className="check">{entry.checked ? '✓' : ''}</span>
-                      {entry.label}
-                    </button>
-                  ),
-                )}
-              </div>
+              <div className="menu">{renderEntries(menu.items)}</div>
             )}
           </div>
         ))}

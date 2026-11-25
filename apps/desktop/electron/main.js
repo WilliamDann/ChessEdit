@@ -10,6 +10,10 @@ function createWindow() {
     width: 1280,
     height: 860,
     frame: false,
+    transparent: true,
+    // Transparent base so the page can show the desktop through it
+    // (also avoids a white flash before the renderer paints)
+    backgroundColor: '#00000000',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

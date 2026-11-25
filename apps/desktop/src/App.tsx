@@ -4,7 +4,8 @@ import type { DockviewApi } from 'dockview'
 import { ChessContext, useChessState } from 'chessboard'
 import { DockLayout } from './windows/DockLayout'
 import TitleBar from './TitleBar'
-import { applyTheme, getStoredThemeId, isDark, saveThemeId, DEFAULT_THEME_ID, THEMES, type Palette } from './themes'
+import { applyBoardTheme, applyPieceTheme, applyTheme, applyTransparency, getStoredBoardThemeId, getStoredPieceThemeId, getStoredThemeId, getStoredTransparency, isDark, saveBoardThemeId, savePieceThemeId, saveThemeId, saveTransparency, DEFAULT_BOARD_THEME_ID, DEFAULT_PIECE_THEME_ID, DEFAULT_THEME_ID, THEMES, type Palette } from './themes'
+import ThemeDialog from './ThemeDialog'
 import './App.css'
 
 declare global {
@@ -22,6 +23,14 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
   const [api, setApi] = useState<DockviewApi | null>(null)
   const [userThemes, setUserThemes] = useState<Record<string, Palette>>({})
   const [themeId, setThemeId] = useState<string>(() => getStoredThemeId() ?? DEFAULT_THEME_ID)
+  const [transparency, setTransparency] = useState<number>(getStoredTransparency)
+  const [boardThemeId, setBoardThemeId] = useState<string>(
+    () => getStoredBoardThemeId() ?? DEFAULT_BOARD_THEME_ID,
+  )
+  const [pieceThemeId, setPieceThemeId] = useState<string>(
+    () => getStoredPieceThemeId() ?? DEFAULT_PIECE_THEME_ID,
+  )
+  const [themeDialogOpen, setThemeDialogOpen] = useState(false)
 
   // Built-ins first; user themes (userData/themes/*.json) may override by id
   const themes = useMemo(() => ({ ...THEMES, ...userThemes }), [userThemes])
@@ -42,6 +51,21 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
     applyTheme(current)
   }, [themeId, current])
 
+  useEffect(() => {
+    saveTransparency(transparency)
+    applyTransparency(transparency)
+  }, [transparency])
+
+  useEffect(() => {
+    saveBoardThemeId(boardThemeId)
+    applyBoardTheme(boardThemeId)
+  }, [boardThemeId])
+
+  useEffect(() => {
+    savePieceThemeId(pieceThemeId)
+    applyPieceTheme(pieceThemeId)
+  }, [pieceThemeId])
+
   const save = async () => {
     // Same serialization the Import/Export panel displays: every game, PGN text
     const pgn = state.games.map(makePgn).join('\n\n')
@@ -49,23 +73,38 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
   }
 
   return (
-    <div className="app">
-      <TitleBar
-        fileName={fileName}
-        onOpen={onOpen}
-        onSave={save}
-        api={api}
-        themes={themes}
-        themeId={themeId}
-        onTheme={setThemeId}
-        onEditMenuOpen={() => void refreshThemes()}
-        onAddTheme={() => void window.themeStore?.openDir()}
-      />
+    <>
+      <div className="app">
+        <TitleBar
+          fileName={fileName}
+          onOpen={onOpen}
+          onSave={save}
+          api={api}
+          onOpenThemeDialog={() => setThemeDialogOpen(true)}
+        />
 
-      <div className="dock-area">
-        <DockLayout dark={isDark(current)} onApiReady={setApi} />
+        <div className="dock-area">
+          <DockLayout dark={isDark(current)} onApiReady={setApi} />
+        </div>
       </div>
-    </div>
+
+      {themeDialogOpen && (
+        <ThemeDialog
+          themes={themes}
+          themeId={themeId}
+          transparency={transparency}
+          boardThemeId={boardThemeId}
+          pieceThemeId={pieceThemeId}
+          onTheme={setThemeId}
+          onTransparency={setTransparency}
+          onBoardTheme={setBoardThemeId}
+          onPieceTheme={setPieceThemeId}
+          onAddTheme={() => void window.themeStore?.openDir()}
+          onRefresh={() => void refreshThemes()}
+          onClose={() => setThemeDialogOpen(false)}
+        />
+      )}
+    </>
   )
 }
 

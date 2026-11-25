@@ -11,7 +11,11 @@ import { lookup } from "../context/PositionPath";
 import { getShapes, withShapes } from "../context/commentShapes";
 
 import { parseSquare } from "chessops";
+import { makeSquare } from "chessops";
 import { makeFen } from "chessops/fen";
+import { parseSan } from "chessops/san";
+
+import { nagBadgeShape, isNagShape } from "./nagBadge";
 
 import "./board.css"
 
@@ -22,14 +26,24 @@ export default function Chessboard() {
   const { game, node, position } = lookup(state.games, state.selected);
   const comments = isChildNode(node) ? node.data.comments : game.comments;
   const shapes = useMemo(() => getShapes(comments), [comments]);
+
+  // NAG badges for the current move, drawn on its destination square. The
+  // tree stores only SAN, so replay the parent position to find the move.
+  const nagShapes = useMemo(() => {
+    if (!isChildNode(node) || !node.data.nags?.length) return [];
+    const parent = lookup(state.games, state.selected.slice(0, -1));
+    const move = parseSan(parent.position, node.data.san);
+    return move ? [nagBadgeShape(makeSquare(move.to), node.data.nags)] : [];
+  }, [node, state.games, state.selected]);
+
   const fen = makeFen(position.toSetup());
 
   return (
     <Chessground
       fen={fen}
       config={AnalysisConfig}
-      shapes={shapes}
-      onShapesChange={(drawn) => actions.updateNode(state.selected, { comments: withShapes(comments, drawn) })}
+      shapes={[...shapes, ...nagShapes]}
+      onShapesChange={(drawn) => actions.updateNode(state.selected, { comments: withShapes(comments, drawn.filter((s) => !isNagShape(s))) })}
       onMove={(origin, destination, _) => {
         actions.addMove({
           from: parseSquare(origin),

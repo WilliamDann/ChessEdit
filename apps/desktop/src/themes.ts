@@ -285,6 +285,161 @@ export function saveThemeId(id: string): void {
   localStorage.setItem(STORAGE_KEY, id)
 }
 
+// ── Window background transparency ───────────────────────────────────────
+
+const TRANSPARENCY_KEY = 'chessedit-transparency'
+
+export const DEFAULT_TRANSPARENCY = 85
+
+export function getStoredTransparency(): number {
+  const raw = localStorage.getItem(TRANSPARENCY_KEY)
+  const pct = raw === null ? NaN : parseInt(raw, 10)
+  return Number.isFinite(pct) ? Math.min(100, Math.max(0, pct)) : DEFAULT_TRANSPARENCY
+}
+
+export function saveTransparency(pct: number): void {
+  localStorage.setItem(TRANSPARENCY_KEY, String(pct))
+}
+
+/** Set --bg-alpha, which App.css uses to blend --bg toward transparent */
+export function applyTransparency(pct: number): void {
+  document.documentElement.style.setProperty('--bg-alpha', `${pct}%`)
+}
+
+// ── Board themes ────────────────────────────────────────────────────────
+//
+// The full lichess board catalog (github.com/lichess-org/lila,
+// modules/pref Theme.scala). CSS lives in
+// packages/chessboard/src/components/board-themes.css, keyed by a
+// data-board-theme attribute on <html>. Brown is the chessground default
+// and needs no attribute. Swatch colors are the canonical flat pairs for
+// the flat boards and sampled from the textures for the textured ones.
+
+export type BoardTheme = { label: string; light: string; dark: string }
+
+export const DEFAULT_BOARD_THEME_ID = 'brown'
+
+export const BOARD_THEMES: Record<string, BoardTheme> = {
+  brown: { label: 'Brown', light: '#f0d9b5', dark: '#b58863' },
+  wood: { label: 'Wood', light: '#cb9350', dark: '#c58c4b' },
+  wood2: { label: 'Wood 2', light: '#927749', dark: '#987c4e' },
+  wood3: { label: 'Wood 3', light: '#af9e8a', dark: '#ab9a87' },
+  wood4: { label: 'Wood 4', light: '#b4915f', dark: '#b39162' },
+  maple: { label: 'Maple', light: '#d8b183', dark: '#d3a778' },
+  maple2: { label: 'Maple 2', light: '#d3b28b', dark: '#d0ae8a' },
+  horsey: { label: 'Horsey', light: '#e1cdb6', dark: '#dac4ab' },
+  leather: { label: 'Leather', light: '#ccc2a7', dark: '#cabb93' },
+  blue: { label: 'Blue', light: '#cad3d8', dark: '#bfcad0' },
+  blue2: { label: 'Blue 2', light: '#7b91a6', dark: '#7a93a8' },
+  blue3: { label: 'Blue 3', light: '#a8b9ca', dark: '#9db1c6' },
+  canvas: { label: 'Canvas', light: '#bbc0d3', dark: '#b4bbce' },
+  'blue-marble': { label: 'Blue Marble', light: '#d8d4cd', dark: '#cdcecb' },
+  ic: { label: 'IC', light: '#e1e1d5', dark: '#dcdcc8' },
+  green: { label: 'Green', light: '#e1e9bf', dark: '#d1ddb0' },
+  marble: { label: 'Marble', light: '#79907a', dark: '#79907a' },
+  'green-plastic': { label: 'Green Plastic', light: '#cbdd9d', dark: '#b7d092' },
+  olive: { label: 'Olive', light: '#a69f8d', dark: '#a29a88' },
+  grey: { label: 'Grey', light: '#a3a3a3', dark: '#9f9f9f' },
+  metal: { label: 'Metal', light: '#a5a5a5', dark: '#a3a3a3' },
+  newspaper: { label: 'Newspaper', light: '#e8e0d0', dark: '#b0a890' },
+  chessboart: { label: 'Chessboart', light: '#d8d0c0', dark: '#9a8a70' },
+  purple: { label: 'Purple', light: '#977fa7', dark: '#9275a3' },
+  'purple-diag': { label: 'Purple Diagonal', light: '#d0c1df', dark: '#c6b5d7' },
+  pink: { label: 'Pink Pyramid', light: '#efd0ad', dark: '#efc0a3' },
+}
+
+const BOARD_THEME_KEY = 'chessedit-board-theme'
+
+export function getStoredBoardThemeId(): string | null {
+  return localStorage.getItem(BOARD_THEME_KEY)
+}
+
+export function saveBoardThemeId(id: string): void {
+  localStorage.setItem(BOARD_THEME_KEY, id)
+}
+
+/** Set the data-board-theme attribute that board-themes.css keys off */
+export function applyBoardTheme(id: string): void {
+  if (BOARD_THEMES[id] && id !== DEFAULT_BOARD_THEME_ID) {
+    document.documentElement.setAttribute('data-board-theme', id)
+  } else {
+    document.documentElement.removeAttribute('data-board-theme')
+  }
+}
+
+// ── Piece themes ────────────────────────────────────────────────────────
+//
+// CSS lives in packages/chessboard/src/components/piece-themes.css, keyed
+// by a data-piece-theme attribute on <html>. Cburnett is the chessground
+// default and needs no attribute.
+
+export const DEFAULT_PIECE_THEME_ID = 'cburnett'
+
+export const PIECE_THEMES: Record<string, { label: string }> = {
+  cburnett: { label: 'Cburnett' },
+  merida: { label: 'Merida' },
+  alpha: { label: 'Alpha' },
+  pirouetti: { label: 'Pirouetti' },
+  chessnut: { label: 'Chessnut' },
+  chess7: { label: 'Chess 7' },
+  reillycraig: { label: 'Reillycraig' },
+  companion: { label: 'Companion' },
+  riohacha: { label: 'Riohacha' },
+  kosal: { label: 'Kosal' },
+  leipzig: { label: 'Leipzig' },
+  fantasy: { label: 'Fantasy' },
+  spatial: { label: 'Spatial' },
+  celtic: { label: 'Celtic' },
+  california: { label: 'California' },
+  caliente: { label: 'Caliente' },
+  pixel: { label: 'Pixel' },
+  firi: { label: 'Firi' },
+  rhosgfx: { label: 'Rhosgfx' },
+  maestro: { label: 'Maestro' },
+  fresca: { label: 'Fresca' },
+  cardinal: { label: 'Cardinal' },
+  gioco: { label: 'Gioco' },
+  tatiana: { label: 'Tatiana' },
+  staunty: { label: 'Staunty' },
+  cooke: { label: 'Cooke' },
+  monarchy: { label: 'Monarchy' },
+  papercut: { label: 'Papercut' },
+  'minimal-warmth': { label: 'Minimal Warmth' },
+  governor: { label: 'Governor' },
+  dubrovny: { label: 'Dubrovny' },
+  'shahi-ivory-brown': { label: 'Shahi Ivory Brown' },
+  icpieces: { label: 'IC Pieces' },
+  mpchess: { label: 'MPChess' },
+  'kiwen-suwi': { label: 'Kiwen Suwi' },
+  totoy: { label: 'Totoy' },
+  chessboart: { label: 'Chessboart' },
+  horsey: { label: 'Horsey' },
+  anarcandy: { label: 'Anarcandy' },
+  xkcd: { label: 'XKCD' },
+  shapes: { label: 'Shapes' },
+  letter: { label: 'Letter' },
+  disguised: { label: 'Disguised' },
+}
+
+const PIECE_THEME_KEY = 'chessedit-piece-theme'
+
+export function getStoredPieceThemeId(): string | null {
+  return localStorage.getItem(PIECE_THEME_KEY)
+}
+
+export function savePieceThemeId(id: string): void {
+  localStorage.setItem(PIECE_THEME_KEY, id)
+}
+
+/** Set the data-piece-theme attribute that piece-themes.css keys off */
+export function applyPieceTheme(id: string): void {
+  if (PIECE_THEMES[id] && id !== DEFAULT_PIECE_THEME_ID) {
+    document.documentElement.setAttribute('data-piece-theme', id)
+  } else {
+    document.documentElement.removeAttribute('data-piece-theme')
+  }
+}
+
 declare global {
   interface Window {
     themeStore?: {

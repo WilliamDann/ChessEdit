@@ -10,6 +10,7 @@
     "start": "npm run build && electron ."
   },
   "dependencies": {
+    "@lichess-org/chessground": "^10.2.0",
     "chessboard": "*",
     "chessops": "^0.15.1",
     "dockview": "^6.6.1",
