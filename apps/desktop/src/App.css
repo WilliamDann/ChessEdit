@@ -1,3 +1,5 @@
+@import './theme.css';
+
 * {
   box-sizing: border-box;
 }
@@ -5,8 +7,8 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: #f4f2ee;
-  color: #1f1d1a;
+  background: var(--bg);
+  color: var(--fg);
 }
 
 .app {
@@ -15,51 +17,162 @@ body {
   height: 100vh;
 }
 
-.toolbar {
+/* Frameless-window title bar: the whole bar is a drag handle;
+   interactive elements opt out with no-drag */
+.titlebar {
   display: flex;
   gap: 12px;
   align-items: center;
-  padding: 10px 16px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
+  padding: 0 0 0 16px;
+  height: 44px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  user-select: none;
 }
 
-.toolbar button {
-  background: #efece6;
-  color: #1f1d1a;
-  border: 1px solid #d8d4cc;
+.titlebar button {
+  -webkit-app-region: no-drag;
+}
+
+/* Flat menu-bar labels (File / Edit / …) */
+.menu-label {
+  background: none;
+  border: none;
   border-radius: 6px;
-  padding: 7px 14px;
+  padding: 6px 10px;
   font-size: 14px;
+  color: var(--fg);
   cursor: pointer;
 }
 
-.toolbar button:hover {
-  background: #e5e1d8;
+.menu-label:hover,
+.menu-label.open {
+  background: var(--hover);
+}
+
+.menubar {
+  display: flex;
+  gap: 2px;
+  -webkit-app-region: no-drag;
+}
+
+.menu-root {
+  position: relative;
+}
+
+/* Dropdown menus */
+.menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 100;
+  min-width: 200px;
+  max-height: 70vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+.menu-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 14px;
+  color: var(--fg);
+  cursor: pointer;
+  text-align: left;
+  flex: none;
+}
+
+.menu-item:hover {
+  background: var(--hover);
+}
+
+.menu-item:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.menu .check {
+  width: 16px;
+  color: var(--success);
+}
+
+.menu hr {
+  border: none;
+  border-top: 1px solid var(--border-soft);
+  margin: 4px 0;
+}
+
+.app-title {
+  font-weight: 600;
+  font-size: 14px;
+  margin-right: 4px;
 }
 
 .file-name {
-  color: #777;
+  color: var(--fg-muted);
   font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* The Analysis component's scroll region: board+tree grid on top,
-   sticky editor tray at the bottom */
-main {
+/* Native-style min/max/close buttons */
+.window-controls {
+  margin-left: auto;
+  display: flex;
+  align-self: stretch;
+  -webkit-app-region: no-drag;
+}
+
+.wc-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  color: var(--fg-muted);
+}
+
+.wc-button:hover {
+  background: var(--hover) !important;
+}
+
+.wc-button.danger:hover {
+  background: var(--danger) !important;
+  color: var(--on-danger);
+}
+
+.dock-area {
   flex: 1;
   min-height: 0;
+}
+
+.dock-area > * {
+  height: 100%;
+}
+
+/* Breathing room inside every dock panel */
+.dock-area .dv-content-container {
+  padding: 12px;
+}
+
+/* The board resizes with its dock panel via ResizeObserver (lib side) */
+.tree-nav {
+  height: 100%;
   overflow-y: auto;
-  width: 100%;
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 1.5rem 2rem;
-}
-
-/* Keep the board a sane size on wide windows */
-.analysis-board {
-  max-width: min(560px, 60vh);
-}
-
-.analysis-panel:focus {
-  outline: none;
 }

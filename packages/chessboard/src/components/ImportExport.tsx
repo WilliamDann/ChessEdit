@@ -6,6 +6,7 @@ import { useChessActions, useChessState } from "../context";
 import { lookup } from "../context/PositionPath";
 
 import "./pgn.css";
+import "./inputs.css";
 
 export default function PgnEditor() {
   const state = useChessState();

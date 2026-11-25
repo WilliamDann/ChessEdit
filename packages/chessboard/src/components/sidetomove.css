@@ -7,13 +7,13 @@
   width: 1rem;
 
   border-radius: 50%;
-  border: 1px solid black;
+  border: 1px solid var(--side-black, black);
 }
 
 .to-move.white {
-  background-color: white;
+  background-color: var(--side-white, white);
 }
 
 .to-move.black {
-  background-color: black;
+  background-color: var(--side-black, black);
 }

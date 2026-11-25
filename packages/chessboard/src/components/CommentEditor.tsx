@@ -4,6 +4,7 @@ import { isChildNode } from "chessops/pgn";
 import { getCommentText, withCommentText } from "../context/commentShapes";
 
 import "./comment.css"
+import "./inputs.css"
 
 export default function CommentEditor() {
   const state = useChessState();

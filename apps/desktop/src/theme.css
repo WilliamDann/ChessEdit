@@ -1,0 +1,35 @@
+/*
+ * Theme tokens — the single place raw color values live.
+ *
+ * The app's theme system (user-defined themes) overrides these on
+ * :root; components and lib CSS only ever reference them via
+ * var(--name, fallback). Lib files carry the same token names as
+ * inline fallbacks so the package still renders standalone.
+ */
+:root {
+  --bg: #f4f2ee;             /* page background */
+  --surface: #ffffff;        /* raised surfaces: title bar, menus, panels */
+  --border: #d8d4cc;         /* strong borders */
+  --border-soft: #e5e1d8;    /* subtle dividers */
+  --fg: #1f1d1a;             /* primary text */
+  --fg-muted: #777777;       /* secondary text */
+  --button-bg: #efece6;      /* button fill */
+  --hover: #e5e1d8;          /* hover wash */
+  --accent: #93c5fd;         /* selection highlight (active move/tab) */
+  --success: #4a7d4a;
+  --danger: #e81123;
+  --on-danger: #ffffff;
+  --pill-bg: #f7f7f7;        /* move pill */
+  --pill-border: #ebebeb;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+
+  /* NAG semantic colors */
+  --nag-good: green;
+  --nag-bad: red;
+  --nag-interesting: teal;
+  --nag-dubious: orange;
+
+  /* side-to-move indicator (piece colors, not theme colors) */
+  --side-white: white;
+  --side-black: black;
+}

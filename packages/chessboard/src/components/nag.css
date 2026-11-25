@@ -55,8 +55,8 @@
 }
 
 .nag-editor-button[aria-pressed="true"] {
-  background: color-mix(in srgb, #93c5fd 60%, transparent);
-  border-color: #93c5fd;
+  background: color-mix(in srgb, var(--accent, #93c5fd) 60%, transparent);
+  border-color: var(--accent, #93c5fd);
 }
 
 .nag-editor-button .nag {

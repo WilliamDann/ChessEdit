@@ -17,3 +17,83 @@
   padding: 0.5rem 1rem;
   cursor: pointer;
 }
+
+/* Markdown comment rendering — inline with the move list */
+.comment.chess-markdown {
+  display: inline;
+  white-space: normal;
+}
+
+/* Literal newlines split off the markdown source (start/end of comment) */
+.chess-markdown .md-newlines {
+  white-space: pre;
+}
+
+.chess-markdown .md-p,
+.chess-markdown .md-h,
+.chess-markdown .md-li,
+.chess-markdown .md-quote {
+  display: inline;
+}
+
+/* Line break before a paragraph/heading/quote/list that isn't first,
+   so long notes structure themselves without becoming stacked blocks */
+.chess-markdown .md-p:not(:first-child)::before,
+.chess-markdown .md-h:not(:first-child)::before,
+.chess-markdown .md-li:not(:first-child)::before,
+.chess-markdown .md-quote:not(:first-child)::before {
+  content: "\a";
+  white-space: pre;
+}
+
+.chess-markdown .md-quote {
+  font-style: italic;
+}
+
+.chess-markdown p,
+.chess-markdown ul,
+.chess-markdown ol,
+.chess-markdown blockquote,
+.chess-markdown table,
+.chess-markdown hr {
+  margin: 0.375rem 0;
+}
+
+.chess-markdown ul,
+.chess-markdown ol {
+  padding-inline-start: 1.5rem;
+}
+
+.chess-markdown blockquote {
+  padding-inline-start: 0.75rem;
+  border-inline-start: 2px solid
+    color-mix(in srgb, currentColor 25%, transparent);
+}
+
+.chess-markdown code {
+  font-family: monospace;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25rem;
+}
+
+.chess-markdown pre code {
+  display: block;
+  padding: 0.5rem;
+  overflow-x: auto;
+}
+
+.chess-markdown table {
+  border-collapse: collapse;
+}
+
+.chess-markdown th,
+.chess-markdown td {
+  border: 1px solid color-mix(in srgb, currentColor 25%, transparent);
+  padding: 0.25rem 0.5rem;
+  text-align: left;
+}
+
+.chess-markdown a {
+  color: inherit;
+}

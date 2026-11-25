@@ -5,6 +5,7 @@ import { lookup } from "../context/PositionPath";
 import { NAGs } from "../NAG";
 
 import "./nag.css";
+import "./inputs.css";
 
 const commonGroups = [
   {

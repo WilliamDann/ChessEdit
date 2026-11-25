@@ -19,7 +19,10 @@
   "dependencies": {
     "@lichess-org/chessground": "^10.2.0",
     "chessops": "^0.15.1",
-    "lucide-react": "^1.48.0"
+    "lucide-react": "^1.48.0",
+    "react-markdown": "^10.1.0",
+    "remark-breaks": "^4.0.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "copyfiles": "^2.4.1",

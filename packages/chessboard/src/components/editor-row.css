@@ -27,7 +27,7 @@
 }
 
 .editor-row-icons button.selected {
-  background-color: #e6e6e6;
+  background-color: var(--hover, #e6e6e6);
 }
 
 .editor-row-panel {

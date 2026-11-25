@@ -1,6 +1,7 @@
 export { default as Analysis } from './Analysis.js'
 export { default as ArrowNavigation } from './ArrowNavigation.js'
 export { default as Chessboard } from './Chessboard.js'
+export { default as CommentView } from './CommentView.js'
 export { default as Chessground } from './Chessground.js'
 export { default as CommentEditor } from './CommentEditor.js'
 export { default as EditorRow } from './EditorRow.js'

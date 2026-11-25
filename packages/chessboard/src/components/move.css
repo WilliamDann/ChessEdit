@@ -3,21 +3,21 @@
 
   cursor: pointer;
   border-radius: 0.25rem;
-  border: 1px solid #ebebeb;
+  border: 1px solid var(--pill-border, #ebebeb);
 
-  background-color: #f7f7f7;
+  background-color: var(--pill-bg, #f7f7f7);
   transition: background-color 120ms ease;
 }
 
 .move.selected {
-  background-color: #93c5fd;
+  background-color: var(--accent, #93c5fd);
 }
 .move.selected:hover {
-  background-color: #93c5fd;
+  background-color: var(--accent, #93c5fd);
 }
 
 .move.selected:active {
-  background-color: #93c5fd;
+  background-color: var(--accent, #93c5fd);
 }
 
 .move:hover {
@@ -34,14 +34,14 @@
 }
 
 .nag.good {
-  color: green; 
+  color: var(--nag-good, green);
 }
 .nag.bad {
-  color: red;
+  color: var(--nag-bad, red);
 }
 .nag.interesting {
-  color: teal;
+  color: var(--nag-interesting, teal);
 }
 .nag.dubious {
-  color: orange;
+  color: var(--nag-dubious, orange);
 }

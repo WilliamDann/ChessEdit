@@ -1,0 +1,23 @@
+{
+  "rules": {
+    "declaration-property-value-allowed-list": {
+      "/^(background|background-color|color|border|border-top|border-right|border-bottom|border-left|border-color|border-(top|right|bottom|left)-color|outline|outline-color|box-shadow|text-decoration-color|fill|stroke)$/": [
+        "/var\\(--/",
+        "/color-mix\\(/",
+        "/\\bcurrentColor\\b/",
+        "/^transparent$/",
+        "/^inherit$/",
+        "/^none$/",
+        "/^0$/",
+        "/^Canvas$/",
+        "/^CanvasText$/"
+      ]
+    }
+  },
+  "overrides": [
+    {
+      "files": ["apps/desktop/src/theme.css"],
+      "rules": { "declaration-property-value-allowed-list": null }
+    }
+  ]
+}

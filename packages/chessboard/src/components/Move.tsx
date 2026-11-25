@@ -7,6 +7,8 @@ import { getCommentText } from "../context/commentShapes"
 
 import { NAGs } from "../NAG"
 
+import CommentView from "./CommentView"
+
 import "./move.css"
 
 type Props = {
@@ -52,9 +54,7 @@ export default function Move({ path, variation = false, onSelected }: Props) {
         {node.data.nags?.map((num, idx) => <NAG symbol={num} key={idx} />)}
       </span>
       {" "}
-      <span className="comment">
-        {getCommentText(node.data.comments)}
-      </span>
+      <CommentView text={getCommentText(node.data.comments)} />
       {" "}
     </span>
   )

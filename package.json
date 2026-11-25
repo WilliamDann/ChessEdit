@@ -7,10 +7,12 @@
     "dev": "npm run dev -w desktop",
     "build": "npm run build -w chessboard && npm run build -w desktop",
     "typecheck": "npm run typecheck -w desktop",
-    "start": "npm run build && npm run start -w desktop"
+    "start": "npm run build && npm run start -w desktop",
+    "lint:css": "stylelint \"apps/*/src/**/*.css\" \"packages/*/src/**/*.css\""
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
+    "stylelint": "^16.0.0",
     "typescript": "^5.6.0"
   }
 }

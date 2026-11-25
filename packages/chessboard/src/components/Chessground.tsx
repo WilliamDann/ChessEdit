@@ -68,6 +68,13 @@ export default function Chessground({ fen, config, shapes, onShapesChange, onMov
   useEffect(init, []);
   useEffect(refresh, [fen, config, shapes]);
 
+  // Keep the board in sync with its container size (e.g. dock panel resizes)
+  useEffect(() => {
+    const observer = new ResizeObserver(() => api.current?.redrawAll());
+    if (div.current) observer.observe(div.current);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="chessboard">
       <div ref={div} className="chessboard-ground" />

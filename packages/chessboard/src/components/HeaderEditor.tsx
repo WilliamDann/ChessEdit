@@ -5,6 +5,7 @@ import { useId, useState } from "react";
 import { useChessActions, useChessState } from "../context";
 
 import "./header.css";
+import "./inputs.css";
 
 export default function HeaderEditor() {
   const { games, selected } = useChessState();

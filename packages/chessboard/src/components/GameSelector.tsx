@@ -5,6 +5,7 @@ import { useState, type SubmitEvent } from "react";
 import { useChessActions, useChessState } from "../context";
 
 import "./game-selector.css";
+import "./inputs.css";
 
 export default function GameSelector() {
   const { games, selected } = useChessState();
