@@ -1,4 +1,31 @@
+# Dependencies
 node_modules/
+
+# Build output (vite + tsc; release/ for future electron-builder output)
 dist/
+release/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Logs
+logs/
 *.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
+
+# Env / local config
+.env
+.env.*
+!.env.example
+
+# Test coverage
+coverage/
+
+# Editors & OS
+.vscode/
+.idea/
+*.swp
 .DS_Store
+Thumbs.db

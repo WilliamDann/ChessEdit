@@ -2,8 +2,8 @@
 
 Desktop PGN editor. Two workspace packages:
 
-- `chessboard/` — React chess components (board, move tree, PGN editors), imported by the app as `chessboard`
-- `desktop/` — the Electron app shell (native file open/save via IPC, React UI)
+- `packages/chessboard/` — React chess components (board, move tree, PGN editors), imported by the app as `chessboard`
+- `apps/src/` — the Electron app shell (native file open/save via IPC, React UI)
 
 ## Develop
 

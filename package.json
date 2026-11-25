@@ -2,12 +2,12 @@
   "name": "chess-editor",
   "private": true,
   "version": "0.1.0",
-  "workspaces": ["chessboard", "desktop"],
+  "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "concurrently -k \"npm run dev -w chessboard\" \"npm run dev -w desktop\"",
-    "build": "npm run build -w chessboard && npm run build -w desktop",
-    "typecheck": "npm run typecheck -w desktop",
-    "start": "npm run build && npm run start -w desktop"
+    "dev": "concurrently -k \"npm run dev -w chessboard\" \"npm run dev -w src\"",
+    "build": "npm run build -w chessboard && npm run build -w src",
+    "typecheck": "npm run typecheck -w src",
+    "start": "npm run build && npm run start -w src"
   },
   "devDependencies": {
     "concurrently": "^9.0.0",
