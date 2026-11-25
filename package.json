@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "workspaces": ["apps/*", "packages/*"],
   "scripts": {
-    "dev": "concurrently -k \"npm run dev -w chessboard\" \"npm run dev -w desktop\"",
+    "dev": "npm run dev -w desktop",
     "build": "npm run build -w chessboard && npm run build -w desktop",
     "typecheck": "npm run typecheck -w desktop",
     "start": "npm run build && npm run start -w desktop"

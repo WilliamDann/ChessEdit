@@ -8,10 +8,11 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./src/index.ts"
     }
   },
   "scripts": {
+    "dev": "tsc -p tsconfig.json --watch",
     "build": "tsc -p tsconfig.json && copyfiles -u 2 \"src/components/*.css\" dist/components",
     "test": "npm run build && node --test test/*.test.mjs"
   },

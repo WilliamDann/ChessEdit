@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { makePgn } from 'chessops/pgn'
-import { ChessContext, Chessboard, MoveTree, ImportExport, useChessState } from 'chessboard'
+import Analysis, { ChessContext, useChessState } from 'chessboard'
 import './App.css'
 
 declare global {
@@ -30,16 +30,7 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
         <span className="file-name">{fileName ?? 'untitled'}</span>
       </div>
 
-      <div className="content">
-        <div className="board-pane">
-          <Chessboard />
-        </div>
-
-        <div className="side-pane">
-          <MoveTree />
-          <ImportExport />
-        </div>
-      </div>
+      <Analysis />
     </div>
   )
 }

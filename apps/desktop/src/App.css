@@ -5,8 +5,8 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, sans-serif;
-  background: #262421;
-  color: #eee;
+  background: #f4f2ee;
+  color: #1f1d1a;
 }
 
 .app {
@@ -20,13 +20,14 @@ body {
   gap: 12px;
   align-items: center;
   padding: 10px 16px;
-  background: #1b1917;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
 }
 
 .toolbar button {
-  background: #3a3733;
-  color: #eee;
-  border: none;
+  background: #efece6;
+  color: #1f1d1a;
+  border: 1px solid #d8d4cc;
   border-radius: 6px;
   padding: 7px 14px;
   font-size: 14px;
@@ -34,35 +35,31 @@ body {
 }
 
 .toolbar button:hover {
-  background: #4a453f;
+  background: #e5e1d8;
 }
 
 .file-name {
-  color: #aaa;
+  color: #777;
   font-size: 13px;
 }
 
-.content {
+/* The Analysis component's scroll region: board+tree grid on top,
+   sticky editor tray at the bottom */
+main {
   flex: 1;
-  display: flex;
   min-height: 0;
-}
-
-.board-pane {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-}
-
-.side-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 16px 24px;
-  border-left: 1px solid #3a3733;
-  min-width: 300px;
   overflow-y: auto;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+/* Keep the board a sane size on wide windows */
+.analysis-board {
+  max-width: min(560px, 60vh);
+}
+
+.analysis-panel:focus {
+  outline: none;
 }
