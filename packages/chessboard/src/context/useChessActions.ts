@@ -30,6 +30,9 @@ export function useChessActions() {
       updateNode: (path: PositionPath, data: Partial<PgnNodeData>) =>
         dispatch({ type: "update", path, data }),
 
+      addVariation: (path: PositionPath, sans: string[]) =>
+        dispatch({ type: "variation", path, sans }),
+
       deleteGame: (index: number) =>
         dispatch({ type: "delete", path: [index] }),
 

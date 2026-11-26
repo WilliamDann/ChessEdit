@@ -105,6 +105,14 @@ export type EngineInfoEvent = {
   progress: number
 }
 
+/** The PV line currently hovered in the panel — the board previews its full trail */
+export type PvHover = {
+  engineId: string
+  fen: string
+  pvUci: string[]
+  color: EngineColorId
+}
+
 export type EngineErrorEvent = {
   engineId: string
   message: string

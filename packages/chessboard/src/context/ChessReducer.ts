@@ -9,6 +9,7 @@ import trim from './trim'
 import header from "./header"
 import reorder from "./reorder";
 import _delete from "./delete"
+import variation from "./variation"
 
 export type ChessState = {
   games: Game<PgnNodeData>[];
@@ -25,6 +26,7 @@ export type ChessStateAction =
     | { move?: never; position?: never; game?: never; games?: never }
   ))
   | { type: "update"; path: PositionPath; data: Partial<PgnNodeData> }
+  | { type: "variation"; path: PositionPath; sans: string[] }
   | { type: "reorder"; path: PositionPath; toIndex: number }
   | { type: "delete"; path: PositionPath }
   | { type: "trim"; path: PositionPath; side: "before" | "after" }
@@ -41,6 +43,7 @@ export default function chessReducer(state: ChessState, action: ChessStateAction
     case "update": return update(state, action);
 
     case "delete": return _delete(state, action);
+    case "variation": return variation(state, action);
     case "trim": return trim(state, action);
     case "reorder": return reorder(state, action);
 

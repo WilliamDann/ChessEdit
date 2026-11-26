@@ -1,6 +1,6 @@
 import type { DrawShape } from '@lichess-org/chessground/draw'
 import { isNormal, makeSquare, parseUci } from 'chessops'
-import type { EngineProfile, EngineSnapshot } from './types'
+import type { EngineProfile, EngineSnapshot, PvHover } from './types'
 import { engineLineBrush } from './types'
 
 /**
@@ -60,3 +60,26 @@ export function engineArrows(
 /** Engine arrows ride the shapes pipeline but must never persist into PGN. */
 export const isEngineShape = (shape: DrawShape): boolean =>
   typeof shape.brush === 'string' && shape.brush.startsWith('engine-')
+
+/**
+ * Arrows previewing a hovered PV: one arrow per move, fading and thinning
+ * along the line so the trail reads in move order.
+ */
+export function pvTrailArrows(hover: PvHover | null): DrawShape[] {
+  if (!hover) return []
+  const shapes: DrawShape[] = []
+  hover.pvUci.forEach((uci, index) => {
+    const move = parseUci(uci)
+    if (!move || !isNormal(move)) return
+    const from = makeSquare(move.from)
+    const to = makeSquare(move.to)
+    if (!from || !to) return
+    shapes.push({
+      orig: from,
+      dest: to,
+      brush: engineLineBrush(hover.color, index),
+      modifiers: { lineWidth: Math.max(4, 10 - index) },
+    })
+  })
+  return shapes
+}

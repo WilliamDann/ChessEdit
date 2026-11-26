@@ -1,9 +1,11 @@
-import { useState } from 'react'
-import { ChevronDown, Pause, Play, Settings2, Square } from 'lucide-react'
-import type { EngineProfile, GoMode } from './types'
+import { useEffect, useState } from 'react'
+import { ChevronDown, FilePlus2, GitBranch, Pause, Play, Settings2, Square } from 'lucide-react'
+import type { EngineLine, EngineProfile, GoMode } from './types'
 import { ENGINE_COLORS, GO_DEFAULTS } from './types'
 import { formatPv, formatScore } from './format'
 import { useCurrentFen, useEngineActions, useEngineStoreSync } from './EngineContext'
+import { lineAsGame } from './pv'
+import { useChessActions, useChessState } from 'chessboard'
 import EngineProfilesDialog from './EngineProfilesDialog'
 import './engines.css'
 
@@ -79,7 +81,20 @@ export default function EnginesPanel() {
 function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: string; onManage: () => void }) {
   const store = useEngineStoreSync()
   const actions = useEngineActions()
+  const chess = useChessState()
+  const chessActions = useChessActions()
   const [expanded, setExpanded] = useState(false)
+
+  // Publish the hovered PV so the board draws its full move trail. Forget it
+  // when leaving the card or when the analyzed position changes underneath.
+  useEffect(() => {
+    store.setPvHover(null)
+    return () => store.setPvHover(null)
+  }, [fen, store])
+
+  const setHover = (line: EngineLine | null) => {
+    store.setPvHover(line ? { engineId: profile.id, fen, pvUci: line.pvUci, color: profile.color } : null)
+  }
 
   const session = store.session(profile.id)
   const snapshot = store.snapshot(profile.id, fen)
@@ -144,13 +159,34 @@ function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: s
       {snapshot && snapshot.lines.length > 0 && (
         <div className="engine-lines">
           {snapshot.lines.map((line) => (
-            <div className="engine-line" key={line.multipv}>
+            <div className="engine-line" key={line.multipv} onMouseEnter={() => setHover(line)} onMouseLeave={() => setHover(null)}>
               <span className="engine-line-score">{formatScore(line)}</span>
               <span
                 className="engine-line-moves"
                 title={formatPv(fen, line.pvSan)}
               >
                 {formatPv(fen, line.pvSan)}
+              </span>
+              <span className="engine-line-actions">
+                <button
+                  className="engine-line-btn"
+                  onClick={() => chessActions.addVariation(chess.selected, line.pvSan)}
+                  title="Add this PV as a subvariation of the current move"
+                  aria-label="Add PV as subvariation"
+                >
+                  <GitBranch size={12} aria-hidden />
+                </button>
+                <button
+                  className="engine-line-btn"
+                  onClick={() => {
+                    const game = lineAsGame(chess.games, chess.selected, line.pvSan)
+                    if (game) chessActions.addGame(game)
+                  }}
+                  title="Add the previous moves and this PV as a new game"
+                  aria-label="Add line as new game"
+                >
+                  <FilePlus2 size={12} aria-hidden />
+                </button>
               </span>
             </div>
           ))}

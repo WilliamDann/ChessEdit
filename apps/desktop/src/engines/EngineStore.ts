@@ -11,6 +11,7 @@ import {
   type EngineSession,
   type EngineSetting,
   type EngineSnapshot,
+  type PvHover,
   type UciOptionConfig,
 } from './types'
 
@@ -44,6 +45,36 @@ function defaultGo(profile: Partial<EngineProfile>) {
   return profile.go && typeof profile.go === 'object' && 'kind' in profile.go
     ? profile.go
     : ({ kind: 'infinite' } as const)
+}
+
+/**
+ * Cloud analysis sources present on first run, before anything is saved.
+ * An explicitly saved list (even an empty one — after removing them) always
+ * wins over these defaults.
+ */
+function defaultCloudProfiles(): EngineProfile[] {
+  return [
+    {
+      id: 'builtin-lichess-cloud',
+      name: 'Lichess Cloud',
+      path: '',
+      kind: 'lichess-cloud',
+      color: 'blue',
+      go: { kind: 'infinite' },
+      settings: [{ name: 'MultiPV', value: 1 }],
+      visible: true,
+    },
+    {
+      id: 'builtin-chessdb',
+      name: 'ChessDB',
+      path: '',
+      kind: 'chessdb',
+      color: 'green',
+      go: { kind: 'infinite' },
+      settings: [{ name: 'MultiPV', value: 1 }],
+      visible: true,
+    },
+  ]
 }
 
 function sanitizeProfile(raw: unknown): EngineProfile | null {
@@ -81,6 +112,8 @@ export class EngineStore {
   sessions: Record<string, EngineSession> = {}
   /** cache key `${engineId}|${fen}` -> latest snapshot for that position */
   snapshots = new Map<string, EngineSnapshot>()
+  /** PV line hovered in the engines panel, for a full-trail preview on the board */
+  pvHover: PvHover | null = null
   loaded = false
   private version = 0
   private seq = 0
@@ -102,16 +135,18 @@ export class EngineStore {
   async load() {
     if (this.loaded) return
     this.loaded = true
+    let stored: unknown = null
     try {
       const raw = await window.engineStore?.load()
-      if (raw) {
-        const parsed: unknown = JSON.parse(raw)
-        if (Array.isArray(parsed)) {
-          this.profiles = parsed.map(sanitizeProfile).filter((p): p is EngineProfile => p !== null)
-        }
-      }
+      if (raw) stored = JSON.parse(raw)
     } catch {
-      // corrupt file — start empty
+      // corrupt file — fall back to the defaults below
+    }
+    if (Array.isArray(stored)) {
+      this.profiles = stored.map(sanitizeProfile).filter((p): p is EngineProfile => p !== null)
+    } else {
+      // Nothing saved yet (first run): enable the cloud sources out of the box
+      this.profiles = defaultCloudProfiles()
     }
     for (const profile of this.profiles) this.ensureSession(profile)
     this.bump()
@@ -142,6 +177,12 @@ export class EngineStore {
 
   snapshot(id: string, fen: string): EngineSnapshot | undefined {
     return this.snapshots.get(`${id}|${fen}`)
+  }
+
+  setPvHover(hover: PvHover | null) {
+    if (this.pvHover === hover) return
+    this.pvHover = hover
+    this.bump()
   }
 
   visibleProfiles(): EngineProfile[] {
@@ -186,6 +227,7 @@ export class EngineStore {
   removeProfile(id: string) {
     this.profiles = this.profiles.filter((p) => p.id !== id)
     delete this.sessions[id]
+    if (this.pvHover?.engineId === id) this.pvHover = null
     for (const key of [...this.snapshots.keys()]) {
       if (key.startsWith(`${id}|`)) this.snapshots.delete(key)
     }

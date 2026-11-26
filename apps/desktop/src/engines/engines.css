@@ -169,6 +169,11 @@
   font-size: 12px;
   line-height: 1.5;
   min-width: 0;
+  border-radius: 4px;
+}
+
+.engine-line:hover {
+  background: color-mix(in srgb, var(--fg) 8%, transparent);
 }
 
 .engine-line-score {
@@ -185,6 +190,33 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  flex: 1;
+}
+
+.engine-line-actions {
+  display: inline-flex;
+  align-self: center;
+  gap: 2px;
+  flex: none;
+}
+
+.engine-line-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: pointer;
+}
+
+.engine-line-btn:hover {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 12%, transparent);
 }
 
 /* ── Settings block ──────────────────────────────────────────────────────── */

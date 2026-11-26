@@ -1,3 +1,4 @@
+import type { MouseEvent as ReactMouseEvent } from "react";
 import type { PositionPath } from '../context/PositionPath.ts'
 
 import { useChessState } from "../context"
@@ -15,6 +16,7 @@ type Props = {
   path: PositionPath;
   variation?: boolean;
   onSelected?: () => void;
+  onContextMenu?: (event: ReactMouseEvent<HTMLSpanElement>) => void;
 }
 
 type NAGProps = {
@@ -29,7 +31,7 @@ function NAG({ symbol }: NAGProps) {
   )
 }
 
-export default function Move({ path, variation = false, onSelected }: Props) {
+export default function Move({ path, variation = false, onSelected, onContextMenu }: Props) {
   const state = useChessState();
   const { position, node } = lookup(state.games, path);
 
@@ -47,7 +49,7 @@ export default function Move({ path, variation = false, onSelected }: Props) {
     path.every((i, idx) => state.selected[idx] === i)
 
   return (
-    <span onClick={onSelected}>
+    <span onClick={onSelected} onContextMenu={onContextMenu}>
       <span className={'move ' + (selected ? 'selected' : '')}>
         {(turn == "white" || variation) ? prefix : " "}
         {node.data.san}
