@@ -341,6 +341,23 @@
   border: 1px solid color-mix(in srgb, var(--fg) 15%, transparent);
   border-radius: 8px;
   padding: 6px 8px;
+  width: 100%;
+}
+
+.profile-editor.dragging {
+  opacity: 0.5;
+}
+
+.profile-grip {
+  display: inline-flex;
+  align-items: center;
+  color: var(--fg-muted);
+  cursor: grab;
+  flex: none;
+}
+
+.profile-grip:active {
+  cursor: grabbing;
 }
 
 .profile-editor-head {
@@ -384,4 +401,10 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+}
+
+.engines-add-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }

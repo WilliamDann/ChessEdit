@@ -86,6 +86,7 @@ function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: s
   const color = ENGINE_COLORS.find((c) => c.id === profile.color) ?? ENGINE_COLORS[0]
   const running = session?.running ?? false
   const bestLine = snapshot?.lines[0]
+  const isRemote = profile.kind !== 'local'
 
   const multipvSetting = session?.settings.find((s) => s.name === 'MultiPV')
   const threadsSetting = session?.settings.find((s) => s.name === 'Threads')
@@ -155,6 +156,11 @@ function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: s
           ))}
         </div>
       )}
+      {running && snapshot && snapshot.lines.length === 0 && !session?.error && (
+        <div className="engine-hint" style={{ marginTop: 6 }}>
+          {isRemote ? 'no cloud analysis for this position' : 'no analysis'}
+        </div>
+      )}
 
       {expanded && (
         <div className="engine-settings">
@@ -193,7 +199,7 @@ function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: s
             </div>
           )}
 
-          {session && (
+          {session && !isRemote && (
             <div className="engine-row">
               <span className="engine-label">Go</span>
               <select
@@ -255,16 +261,20 @@ function EngineCard({ profile, fen, onManage }: { profile: EngineProfile; fen: s
                 Sync settings to profile
               </label>
               <span className="dialog-spacer" />
-              <button className="engines-footer-btn" onClick={onManage} title="Edit all UCI options">
-                All options…
-              </button>
-              <button
-                className="engines-footer-btn"
-                onClick={() => actions.kill(profile.id)}
-                title="Kill the engine process"
-              >
-                <Square size={12} aria-hidden /> Kill
-              </button>
+              {!isRemote && (
+                <>
+                  <button className="engines-footer-btn" onClick={onManage} title="Edit all UCI options">
+                    All options…
+                  </button>
+                  <button
+                    className="engines-footer-btn"
+                    onClick={() => actions.kill(profile.id)}
+                    title="Kill the engine process"
+                  >
+                    <Square size={12} aria-hidden /> Kill
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>

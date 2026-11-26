@@ -29,6 +29,7 @@ contextBridge.exposeInMainWorld('engineHost', {
   analyze: (req) => ipcRenderer.invoke('engine-analyze', req),
   stop: (engineId) => ipcRenderer.invoke('engine-stop', engineId),
   kill: (engineId) => ipcRenderer.invoke('engine-kill', engineId),
+  remoteAnalyze: (req) => ipcRenderer.invoke('remote-analyze', req),
   onInfo: (cb) => {
     const handler = (_event, info) => cb(info)
     ipcRenderer.on('engine-info', handler)

@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs/promises')
 const engines = require('./engines')
+const remotes = require('./remotes')
 
 // userData lives at ~/.config/ChessEdit (themes, saved layouts)
 app.setName('ChessEdit')
@@ -113,6 +114,9 @@ ipcMain.handle('save-engines', async (_event, json) => {
 
 // Engine processes: UCI handshake, analysis, info streaming (see engines.js)
 engines.register(ipcMain, () => BrowserWindow.getAllWindows()[0] ?? null)
+
+// Cloud analysis sources: Lichess cloud evals + ChessDB (see remotes.js)
+remotes.register(ipcMain)
 
 // Custom title bar window controls
 ipcMain.on('window-minimize', (event) => {

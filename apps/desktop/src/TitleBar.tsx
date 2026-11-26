@@ -20,6 +20,7 @@ type Props = {
   onSave: () => void
   api: DockviewApi | null
   onOpenThemeDialog: () => void
+  onOpenEnginesDialog: () => void
 }
 
 // ── Menu model ────────────────────────────────────────────────────────────
@@ -29,7 +30,7 @@ type MenuEntry =
   | { kind: 'item'; label: string; onClick: () => void; checked?: boolean; disabled?: boolean }
   | { kind: 'separator' }
 
-function buildMenus({ onOpen, onSave, api, onOpenThemeDialog }: Omit<Props, 'fileName'>): Array<{ label: string; items: MenuEntry[] }> {
+function buildMenus({ onOpen, onSave, api, onOpenThemeDialog, onOpenEnginesDialog }: Omit<Props, 'fileName'>): Array<{ label: string; items: MenuEntry[] }> {
   return [
     {
       label: 'File',
@@ -45,6 +46,7 @@ function buildMenus({ onOpen, onSave, api, onOpenThemeDialog }: Omit<Props, 'fil
       items: [
         // Themes. Future customization options go here.
         { kind: 'item', label: 'Theme…', onClick: onOpenThemeDialog },
+        { kind: 'item', label: 'Engines…', onClick: onOpenEnginesDialog },
       ],
     },
     {
@@ -132,7 +134,7 @@ function WindowButton({
  * bar is a drag handle; menus, buttons and controls opt out with
  * no-drag. Double-click on empty bar area toggles maximize.
  */
-export default function TitleBar({ fileName, onOpen, onSave, api, onOpenThemeDialog }: Props) {
+export default function TitleBar({ fileName, onOpen, onSave, api, onOpenThemeDialog, onOpenEnginesDialog }: Props) {
   const [open, setOpen] = useState<string | null>(null)
   const [maximized, setMaximized] = useState(false)
   const menubarRef = useRef<HTMLDivElement>(null)
@@ -160,7 +162,7 @@ export default function TitleBar({ fileName, onOpen, onSave, api, onOpenThemeDia
     return window.windowControls.onMaximized(setMaximized)
   }, [])
 
-  const menus = buildMenus({ onOpen, onSave, api, onOpenThemeDialog })
+  const menus = buildMenus({ onOpen, onSave, api, onOpenThemeDialog, onOpenEnginesDialog })
 
   const renderEntries = (items: MenuEntry[]) =>
     items.map((entry, i) => {

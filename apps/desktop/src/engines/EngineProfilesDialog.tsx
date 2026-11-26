@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { ChevronDown, Plus, RotateCw, Trash2 } from 'lucide-react'
+import { ChevronDown, GripVertical, Plus, RotateCw, Trash2 } from 'lucide-react'
 import type {
   EngineColorId,
+  EngineKind,
   EngineProfile,
   EngineSetting,
   GoMode,
@@ -13,6 +14,11 @@ import './engines.css'
 
 /** Settings the panel drives with dedicated controls; always kept in the profile */
 const REQUIRED_SETTINGS = ['MultiPV', 'Threads', 'Hash']
+
+const CLOUD_NAMES: Record<Exclude<EngineKind, 'local'>, string> = {
+  'lichess-cloud': 'Lichess Cloud',
+  chessdb: 'ChessDB',
+}
 
 /** Seed MultiPV/Threads/Hash defaults, mirroring en-croissant's add-engine flow */
 function requiredSettings(options: UciOptionConfig[]) {
@@ -34,6 +40,7 @@ export default function EngineProfilesDialog({ onClose }: { onClose: () => void 
   const actions = useEngineActions()
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [dragId, setDragId] = useState<string | null>(null)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -55,6 +62,7 @@ export default function EngineProfilesDialog({ onClose }: { onClose: () => void 
         id: crypto.randomUUID(),
         name: config.name || path.split('/').pop() || path,
         path,
+        kind: 'local',
         color: actions.nextColor(),
         go: { kind: 'infinite' },
         settings: requiredSettings(config.options),
@@ -66,6 +74,19 @@ export default function EngineProfilesDialog({ onClose }: { onClose: () => void 
     } finally {
       setAdding(false)
     }
+  }
+
+  const addCloudEngine = (kind: Exclude<EngineKind, 'local'>) => {
+    actions.addProfile({
+      id: crypto.randomUUID(),
+      name: CLOUD_NAMES[kind],
+      path: '',
+      kind,
+      color: actions.nextColor(),
+      go: { kind: 'infinite' },
+      settings: [{ name: 'MultiPV', value: 1 }],
+      visible: true,
+    })
   }
 
   return (
@@ -86,13 +107,21 @@ export default function EngineProfilesDialog({ onClose }: { onClose: () => void 
         <div className="dialog-body engines-dialog-body">
           {store.profiles.length === 0 && <p className="engines-empty-hint">No engine profiles yet.</p>}
 
-          {store.profiles.map((profile) => (
-            <ProfileEditor key={profile.id} profile={profile} />
+          {store.profiles.map((profile, index) => (
+            <ProfileEditor key={profile.id} profile={profile} index={index} dragId={dragId} setDragId={setDragId} />
           ))}
 
-          <button className="dialog-btn engines-add-btn" onClick={() => void addEngine()} disabled={adding}>
-            <Plus size={14} aria-hidden /> {adding ? 'Reading engine…' : 'Add engine…'}
-          </button>
+          <div className="engines-add-row">
+            <button className="dialog-btn engines-add-btn" onClick={() => void addEngine()} disabled={adding}>
+              <Plus size={14} aria-hidden /> {adding ? 'Reading engine…' : 'Add engine…'}
+            </button>
+            <button className="dialog-btn engines-add-btn" onClick={() => addCloudEngine('lichess-cloud')}>
+              <Plus size={14} aria-hidden /> Lichess Cloud
+            </button>
+            <button className="dialog-btn engines-add-btn" onClick={() => addCloudEngine('chessdb')}>
+              <Plus size={14} aria-hidden /> ChessDB
+            </button>
+          </div>
           {error && <p className="engine-error">{error}</p>}
         </div>
 
@@ -111,13 +140,24 @@ function colorHex(color: EngineColorId): string {
   return ENGINE_COLORS.find((c) => c.id === color)?.hex ?? '#888'
 }
 
-function ProfileEditor({ profile }: { profile: EngineProfile }) {
+function ProfileEditor({
+  profile,
+  index,
+  dragId,
+  setDragId,
+}: {
+  profile: EngineProfile
+  index: number
+  dragId: string | null
+  setDragId: (id: string | null) => void
+}) {
   const store = useEngineStoreSync()
   const actions = useEngineActions()
   const [open, setOpen] = useState(false)
   const [reading, setReading] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
   const session = store.session(profile.id)
+  const isRemote = profile.kind !== 'local'
 
   const setGo = (go: GoMode) => actions.updateProfile(profile.id, { go })
 
@@ -167,8 +207,32 @@ function ProfileEditor({ profile }: { profile: EngineProfile }) {
   )
 
   return (
-    <div className="profile-editor">
-      <div className="profile-editor-head">
+    <div
+      className={'profile-editor' + (dragId === profile.id ? ' dragging' : '')}
+      onDragOver={(e) => {
+        // Live reorder: the dragged profile takes the hovered row's slot
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+        if (dragId && dragId !== profile.id) actions.moveProfile(dragId, index)
+      }}
+      onDrop={(e) => {
+        e.preventDefault()
+        setDragId(null)
+      }}
+    >
+      <div
+        className="profile-editor-head"
+        draggable
+        onDragStart={(e) => {
+          setDragId(profile.id)
+          e.dataTransfer.effectAllowed = 'move'
+          e.dataTransfer.setData('text/plain', profile.id)
+        }}
+        onDragEnd={() => setDragId(null)}
+      >
+        <span className="profile-grip" title="Drag to reorder">
+          <GripVertical size={14} aria-hidden />
+        </span>
         <button className="profile-editor-toggle" onClick={() => setOpen(!open)} aria-expanded={open}>
           <ChevronDown size={14} className={'chevron' + (open ? '' : ' collapsed')} aria-hidden />
           <span className="engine-dot" style={{ background: colorHex(profile.color) }} aria-hidden />
@@ -211,36 +275,75 @@ function ProfileEditor({ profile }: { profile: EngineProfile }) {
             </div>
           </div>
 
-          <div className="engine-row">
-            <span className="engine-label">Binary</span>
-            <input className="engine-input grow mono" value={profile.path} readOnly disabled />
-          </div>
+          {isRemote ? (
+            <>
+              <div className="engine-row">
+                <span className="engine-label">Source</span>
+                <span className="engine-hint">
+                  {profile.kind === 'lichess-cloud'
+                    ? 'Lichess cloud evals — lichess.org'
+                    : 'ChessDB community cloud — chessdb.cn'}
+                </span>
+              </div>
+              <div className="engine-row">
+                <span className="engine-label">Lines</span>
+                <div className="engine-segments" role="group" aria-label="Number of lines">
+                  {[1, 2, 3, 4, 5].map((n) => {
+                    const current =
+                      Number(profile.settings.find((s) => s.name === 'MultiPV')?.value ?? 1) === n
+                    return (
+                      <button
+                        key={n}
+                        className={current ? 'active' : ''}
+                        onClick={() =>
+                          actions.updateProfile(profile.id, {
+                            settings: profile.settings.map((s) =>
+                              s.name === 'MultiPV' ? { ...s, value: n } : s,
+                            ),
+                          })
+                        }
+                      >
+                        {n}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="engine-row">
+                <span className="engine-label">Binary</span>
+                <input className="engine-input grow mono" value={profile.path} readOnly disabled />
+              </div>
 
-          <div className="engine-row">
-            <span className="engine-label">Go</span>
-            <select
-              className="engine-select"
-              value={profile.go.kind}
-              onChange={(e) => {
-                const kind = e.target.value as GoMode['kind']
-                setGo(kind === 'infinite' ? { kind: 'infinite' } : { kind, value: GO_DEFAULTS[kind] })
-              }}
-            >
-              <option value="infinite">Infinite</option>
-              <option value="depth">Depth</option>
-              <option value="time">Time</option>
-              <option value="nodes">Nodes</option>
-            </select>
-            {profile.go.kind !== 'infinite' && (
-              <input
-                className="engine-input"
-                type="number"
-                min={1}
-                value={profile.go.value}
-                onChange={(e) => setGo({ kind: profile.go.kind, value: Math.max(1, Number(e.target.value) || 1) })}
-              />
-            )}
-          </div>
+              <div className="engine-row">
+                <span className="engine-label">Go</span>
+                <select
+                  className="engine-select"
+                  value={profile.go.kind}
+                  onChange={(e) => {
+                    const kind = e.target.value as GoMode['kind']
+                    setGo(kind === 'infinite' ? { kind: 'infinite' } : { kind, value: GO_DEFAULTS[kind] })
+                  }}
+                >
+                  <option value="infinite">Infinite</option>
+                  <option value="depth">Depth</option>
+                  <option value="time">Time</option>
+                  <option value="nodes">Nodes</option>
+                </select>
+                {profile.go.kind !== 'infinite' && (
+                  <input
+                    className="engine-input"
+                    type="number"
+                    min={1}
+                    value={profile.go.value}
+                    onChange={(e) => setGo({ kind: profile.go.kind, value: Math.max(1, Number(e.target.value) || 1) })}
+                  />
+                )}
+              </div>
+            </>
+          )}
 
           {options.length > 0 && (
             <div className="engine-row">
@@ -293,12 +396,14 @@ function ProfileEditor({ profile }: { profile: EngineProfile }) {
             </div>
           ))}
 
-          <div className="engine-row">
-            <button className="engines-footer-btn" onClick={() => void rereadOptions()} disabled={reading}>
-              <RotateCw size={12} aria-hidden /> {reading ? 'Reading…' : 'Re-read options'}
-            </button>
-            {readError && <span className="engine-error">{readError}</span>}
-          </div>
+          {!isRemote && (
+            <div className="engine-row">
+              <button className="engines-footer-btn" onClick={() => void rereadOptions()} disabled={reading}>
+                <RotateCw size={12} aria-hidden /> {reading ? 'Reading…' : 'Re-read options'}
+              </button>
+              {readError && <span className="engine-error">{readError}</span>}
+            </div>
+          )}
 
           <div className="engine-row">
             <label className="engine-check">

@@ -114,7 +114,50 @@ export function useEngineLifecycle(): void {
       }
 
       if (!session.running || gameOver) {
-        void host.stop(profile.id)
+        if (profile.kind === 'local') void host.stop(profile.id)
+        continue
+      }
+
+      if (profile.kind !== 'local') {
+        // Cloud engine: one HTTP fetch per position. Results are cached per
+        // fen in the main process and in the store, so revisiting a position
+        // doesn't re-hit the public API.
+        if (typeof host.remoteAnalyze !== 'function') {
+          // Renderer is newer than the Electron main/preload — a restart is needed
+          store.markError(profile.id, 'app restart required for cloud engines')
+          continue
+        }
+        const request = {
+          kind: profile.kind,
+          fen,
+          lines: Number(session.settings.find((s) => s.name === 'MultiPV')?.value ?? 1) || 1,
+        }
+        const wait = Math.max(0, THROTTLE_MS - (Date.now() - (lastRun.current.get(profile.id) ?? 0)))
+        const timer = setTimeout(() => {
+          timers.current.delete(profile.id)
+          lastRun.current.set(profile.id, Date.now())
+          try {
+            host
+              .remoteAnalyze(request)
+              .then((result) => {
+                // null = no cloud data for this position — record an empty
+                // snapshot so the card doesn't sit on "starting…" forever
+                store.applyInfo({
+                  engineId: profile.id,
+                  fen,
+                  lines: result?.lines ?? [],
+                  depth: result?.depth ?? 0,
+                  nodes: result?.nodes ?? 0,
+                  nps: 0,
+                  progress: 100,
+                })
+              })
+              .catch((err) => store.markError(profile.id, err instanceof Error ? err.message : String(err)))
+          } catch (err) {
+            store.markError(profile.id, err instanceof Error ? err.message : String(err))
+          }
+        }, wait)
+        timers.current.set(profile.id, timer)
         continue
       }
 
@@ -167,6 +210,9 @@ export function useEngineActions() {
       removeProfile(id: string) {
         void window.engineHost?.kill(id)
         store.removeProfile(id)
+      },
+      moveProfile(id: string, toIndex: number) {
+        store.moveProfile(id, toIndex)
       },
       toggleRunning(id: string) {
         const running = store.toggleRunning(id)

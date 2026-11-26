@@ -6,6 +6,7 @@ import { DockLayout } from './windows/DockLayout'
 import TitleBar from './TitleBar'
 import { applyBoardTheme, applyPieceTheme, applyTheme, applyTransparency, getStoredBoardThemeId, getStoredPieceThemeId, getStoredThemeId, getStoredTransparency, isDark, saveBoardThemeId, savePieceThemeId, saveThemeId, saveTransparency, DEFAULT_BOARD_THEME_ID, DEFAULT_PIECE_THEME_ID, DEFAULT_THEME_ID, THEMES, type Palette } from './themes'
 import ThemeDialog from './ThemeDialog'
+import EngineProfilesDialog from './engines/EngineProfilesDialog'
 import { EngineProvider, useEngineLifecycle } from './engines/EngineContext'
 import './App.css'
 
@@ -35,6 +36,7 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
     () => getStoredPieceThemeId() ?? DEFAULT_PIECE_THEME_ID,
   )
   const [themeDialogOpen, setThemeDialogOpen] = useState(false)
+  const [enginesDialogOpen, setEnginesDialogOpen] = useState(false)
 
   // Built-ins first; user themes (userData/themes/*.json) may override by id
   const themes = useMemo(() => ({ ...THEMES, ...userThemes }), [userThemes])
@@ -85,6 +87,7 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
           onSave={save}
           api={api}
           onOpenThemeDialog={() => setThemeDialogOpen(true)}
+          onOpenEnginesDialog={() => setEnginesDialogOpen(true)}
         />
 
         <div className="dock-area">
@@ -107,6 +110,10 @@ function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () =
           onRefresh={() => void refreshThemes()}
           onClose={() => setThemeDialogOpen(false)}
         />
+      )}
+
+      {enginesDialogOpen && (
+        <EngineProfilesDialog onClose={() => setEnginesDialogOpen(false)} />
       )}
     </>
   )

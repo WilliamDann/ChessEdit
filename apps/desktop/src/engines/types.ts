@@ -8,6 +8,10 @@ export type GoMode =
 
 export type EngineColorId = 'blue' | 'green' | 'red' | 'yellow'
 
+/** Cloud engines stream analysis from a public API instead of a local UCI
+ *  process — the panel, arrows, colors and per-FEN cache treat them the same */
+export type EngineKind = 'local' | 'lichess-cloud' | 'chessdb'
+
 export const ENGINE_COLORS: Array<{ id: EngineColorId; label: string; hex: string }> = [
   { id: 'blue', label: 'Blue', hex: '#4f8ef7' },
   { id: 'green', label: 'Green', hex: '#4caf50' },
@@ -24,24 +28,35 @@ export type EngineSetting = {
 export type EngineProfile = {
   id: string
   name: string
-  /** Absolute path to the engine binary */
+  /** Local binary path; unused for cloud engines */
   path: string
+  kind: EngineKind
   color: EngineColorId
-  /** Default go mode; the session may override (write-through when synced) */
+  /** Default go mode; the session may override (write-through when synced).
+   *  Cloud engines always analyze until the position changes. */
   go: GoMode
   /**
    * Current UCI option values. Deliberately minimal, like en-croissant:
    * MultiPV/Threads/Hash are always present (they drive the panel controls),
    * everything else is stored only while it differs from the engine default.
+   * Cloud engines only carry MultiPV (the Lines selector).
    */
   settings: EngineSetting[]
   /**
    * Full UCI option metadata from `engine-get-config` (name, type, default,
    * min/max, vars) — drives the typed editors in the profiles dialog.
+   * Cloud engines have none.
    */
   optionConfigs?: UciOptionConfig[]
   /** Shown in the Engines panel */
   visible: boolean
+}
+
+/** One-shot cloud analysis result (renderer converts pvUci → pvSan) */
+export type RemoteAnalysis = {
+  depth: number
+  nodes: number
+  lines: Array<Omit<EngineLine, 'pvSan'>>
 }
 
 /** Per-session runtime state of an engine (never persisted) */
@@ -129,6 +144,11 @@ declare global {
       analyze: (req: AnalyzeRequest) => Promise<boolean>
       stop: (engineId: string) => Promise<void>
       kill: (engineId: string) => Promise<void>
+      remoteAnalyze: (req: {
+        kind: 'lichess-cloud' | 'chessdb'
+        fen: string
+        lines: number
+      }) => Promise<RemoteAnalysis | null>
       onInfo: (cb: (info: EngineInfoEvent) => void) => () => void
       onError: (cb: (err: EngineErrorEvent) => void) => () => void
     }

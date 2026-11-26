@@ -6,6 +6,7 @@ import {
   ENGINE_COLORS,
   type EngineColorId,
   type EngineInfoEvent,
+  type EngineKind,
   type EngineProfile,
   type EngineSession,
   type EngineSetting,
@@ -50,6 +51,7 @@ function sanitizeProfile(raw: unknown): EngineProfile | null {
   const p = raw as Partial<EngineProfile>
   if (typeof p.id !== 'string' || typeof p.name !== 'string' || typeof p.path !== 'string') return null
   const color = ENGINE_COLORS.some((c) => c.id === p.color) ? (p.color as EngineColorId) : 'blue'
+  const kind: EngineKind = p.kind === 'lichess-cloud' || p.kind === 'chessdb' ? p.kind : 'local'
   const optionConfigs = Array.isArray(p.optionConfigs)
     ? p.optionConfigs.filter(
         (o): o is UciOptionConfig => !!o && typeof o.name === 'string' && typeof o.type === 'string',
@@ -59,6 +61,7 @@ function sanitizeProfile(raw: unknown): EngineProfile | null {
     id: p.id,
     name: p.name,
     path: p.path,
+    kind,
     color,
     go: defaultGo(p),
     settings: defaultSettings(p),
@@ -186,6 +189,20 @@ export class EngineStore {
     for (const key of [...this.snapshots.keys()]) {
       if (key.startsWith(`${id}|`)) this.snapshots.delete(key)
     }
+    this.persist()
+    this.bump()
+  }
+
+  /** Move a profile to an index (drag-and-drop reordering in the dialog) */
+  moveProfile(id: string, toIndex: number) {
+    const from = this.profiles.findIndex((p) => p.id === id)
+    if (from === -1) return
+    const to = Math.max(0, Math.min(this.profiles.length - 1, toIndex))
+    if (from === to) return
+    const next = [...this.profiles]
+    const [moved] = next.splice(from, 1)
+    next.splice(to, 0, moved)
+    this.profiles = next
     this.persist()
     this.bump()
   }
