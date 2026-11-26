@@ -1,0 +1,387 @@
+/* Engines panel + engine profiles dialog. Built on the theme tokens
+   (--bg, --fg, --fg-muted, --accent) that themes.ts sets on <html>. */
+
+/* Single vertical column of engine cards, one per row — never a grid */
+.engines-panel {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 10px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.engines-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin: auto;
+  text-align: center;
+  color: var(--fg-muted);
+}
+
+.engines-empty p {
+  margin: 0;
+  color: var(--fg);
+}
+
+.engines-empty-hint {
+  font-size: 12px;
+  color: var(--fg-muted);
+  margin: 0;
+}
+
+/* ── Engine card ─────────────────────────────────────────────────────────── */
+
+.engine-card {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--engine-color, var(--accent)) 45%, transparent);
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--engine-color, var(--accent)) 6%, transparent);
+}
+
+.engine-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.engine-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--engine-color, var(--accent));
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  flex: none;
+}
+
+.engine-toggle.running {
+  background: var(--engine-color, var(--accent));
+  border-color: var(--engine-color, var(--accent));
+  color: #fff;
+}
+
+.engine-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+
+.engine-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex: none;
+}
+
+.engine-name {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.engine-hint {
+  font-size: 11px;
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+.engine-stat {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--engine-color, var(--accent));
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.engine-error {
+  font-size: 11px;
+  color: var(--red, #ef5350);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.engine-progress {
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 6px;
+  background: color-mix(in srgb, var(--fg) 10%, transparent);
+  overflow: hidden;
+}
+
+.engine-progress span {
+  display: block;
+  height: 100%;
+  background: var(--engine-color, var(--accent));
+  transition: width 0.2s linear;
+}
+
+.engine-progress.live span {
+  background-image: repeating-linear-gradient(
+    -45deg,
+    transparent 0 4px,
+    rgba(255, 255, 255, 0.25) 4px 8px
+  );
+  animation: engine-progress-stripes 1s linear infinite;
+}
+
+@keyframes engine-progress-stripes {
+  to {
+    background-position: 16px 0;
+  }
+}
+
+/* ── Suggested lines (PVs) ───────────────────────────────────────────────── */
+
+.engine-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 6px;
+}
+
+.engine-line {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+  min-width: 0;
+}
+
+.engine-line-score {
+  color: var(--engine-color, var(--accent));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  flex: none;
+  min-width: 40px;
+}
+
+.engine-line-moves {
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+/* ── Settings block ──────────────────────────────────────────────────────── */
+
+.engine-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.engine-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 24px;
+}
+
+.engine-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--fg-muted);
+  width: 70px;
+  flex: none;
+}
+
+.engine-input,
+.engine-select {
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  color: var(--fg);
+  border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 6px;
+  padding: 3px 6px;
+  font-size: 12px;
+  min-height: 24px;
+}
+
+.engine-input {
+  width: 72px;
+}
+
+.engine-input.grow,
+.engine-select.grow {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+
+.engine-input.mono {
+  font-family: monospace;
+  font-size: 11px;
+}
+
+.engine-input:disabled {
+  opacity: 0.6;
+}
+
+.engine-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--fg);
+  cursor: pointer;
+}
+
+.engine-segments {
+  display: inline-flex;
+  border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.engine-segments button {
+  border: none;
+  background: transparent;
+  color: var(--fg);
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+
+.engine-segments button + button {
+  border-left: 1px solid color-mix(in srgb, var(--fg) 15%, transparent);
+}
+
+.engine-segments button.active {
+  background: var(--engine-color, var(--accent));
+  color: #fff;
+}
+
+.engine-colors {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.engine-color {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.engine-color.active {
+  border-color: var(--fg);
+  outline: 2px solid var(--bg);
+  outline-offset: -3px;
+}
+
+/* ── Panel footer ────────────────────────────────────────────────────────── */
+
+.engines-footer {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding-top: 6px;
+}
+
+.engines-footer-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg);
+  font-size: 12px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+
+.engines-footer-btn:hover {
+  border-color: var(--accent);
+}
+
+/* ── Profiles dialog additions ───────────────────────────────────────────── */
+
+/* App.css styles .dialog-body as a two-column grid for the theme dialog and
+   is bundled after this file, so it wins the cascade at equal specificity.
+   Doubled specificity here to keep the engine list a vertical stack. */
+.dialog-body.engines-dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.profile-editor {
+  border: 1px solid color-mix(in srgb, var(--fg) 15%, transparent);
+  border-radius: 8px;
+  padding: 6px 8px;
+}
+
+.profile-editor-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.profile-editor-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  color: var(--fg);
+  cursor: pointer;
+  padding: 2px 0;
+  font: inherit;
+  min-width: 0;
+}
+
+.profile-editor-toggle .chevron {
+  transition: transform 0.15s ease;
+}
+
+.profile-editor-toggle .chevron.collapsed {
+  transform: rotate(-90deg);
+}
+
+.profile-name {
+  font-weight: 600;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.engines-add-btn {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}

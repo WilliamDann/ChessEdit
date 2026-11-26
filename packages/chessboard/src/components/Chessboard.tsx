@@ -1,6 +1,8 @@
 import type { Move } from "chessops"
 import { useMemo } from "react";
 import { isChildNode } from "chessops/pgn";
+import type { Config } from "@lichess-org/chessground/config";
+import type { DrawShape } from "@lichess-org/chessground/draw";
 
 import Chessground from "./Chessground";
 import { AnalysisConfig } from "../Configs";
@@ -19,7 +21,14 @@ import { nagBadgeShape, isNagShape } from "./nagBadge";
 
 import "./board.css"
 
-export default function Chessboard() {
+type Props = {
+  config?: Config
+  /** Overlay shapes (e.g. engine arrows) drawn on top of the comment shapes.
+   *  They ride the shapes pipeline but never persist into the PGN. */
+  extraShapes?: DrawShape[]
+}
+
+export default function Chessboard({ config = AnalysisConfig, extraShapes = [] }: Props) {
   const state = useChessState();
   const actions = useChessActions();
 
@@ -41,8 +50,8 @@ export default function Chessboard() {
   return (
     <Chessground
       fen={fen}
-      config={AnalysisConfig}
-      shapes={[...shapes, ...nagShapes]}
+      config={config}
+      shapes={[...shapes, ...nagShapes, ...extraShapes]}
       onShapesChange={(drawn) => actions.updateNode(state.selected, { comments: withShapes(comments, drawn.filter((s) => !isNagShape(s))) })}
       onMove={(origin, destination, _) => {
         actions.addMove({

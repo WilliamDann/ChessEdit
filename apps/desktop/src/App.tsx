@@ -6,6 +6,7 @@ import { DockLayout } from './windows/DockLayout'
 import TitleBar from './TitleBar'
 import { applyBoardTheme, applyPieceTheme, applyTheme, applyTransparency, getStoredBoardThemeId, getStoredPieceThemeId, getStoredThemeId, getStoredTransparency, isDark, saveBoardThemeId, savePieceThemeId, saveThemeId, saveTransparency, DEFAULT_BOARD_THEME_ID, DEFAULT_PIECE_THEME_ID, DEFAULT_THEME_ID, THEMES, type Palette } from './themes'
 import ThemeDialog from './ThemeDialog'
+import { EngineProvider, useEngineLifecycle } from './engines/EngineContext'
 import './App.css'
 
 declare global {
@@ -20,6 +21,9 @@ declare global {
 // Everything that needs to read the games lives inside ChessContext.
 function Workspace({ fileName, onOpen }: { fileName: string | null; onOpen: () => void }) {
   const state = useChessState()
+  // Engine search loop: runs while this workspace exists, independent of
+  // whether the Engines panel is open.
+  useEngineLifecycle()
   const [api, setApi] = useState<DockviewApi | null>(null)
   const [userThemes, setUserThemes] = useState<Record<string, Palette>>({})
   const [themeId, setThemeId] = useState<string>(() => getStoredThemeId() ?? DEFAULT_THEME_ID)
@@ -123,8 +127,10 @@ export default function App() {
   }
 
   return (
-    <ChessContext key={version} pgn={pgn}>
-      <Workspace fileName={fileName} onOpen={open} />
-    </ChessContext>
+    <EngineProvider>
+      <ChessContext key={version} pgn={pgn}>
+        <Workspace fileName={fileName} onOpen={open} />
+      </ChessContext>
+    </EngineProvider>
   )
 }

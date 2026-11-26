@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react'
 import type { AddPanelOptions, DockviewApi, IDockviewPanelProps } from 'dockview'
 import {
-  Chessboard,
   MoveTree,
   ArrowNavigation,
   GameSelector,
@@ -11,10 +10,13 @@ import {
   HeaderEditor,
   ImportExport,
 } from 'chessboard'
+import EngineBoard from '../engines/EngineBoard'
+import EnginesPanel from '../engines/EnginesPanel'
 
 export type PanelId =
   | 'board'
   | 'tree'
+  | 'engines'
   | 'games'
   | 'comment'
   | 'nag'
@@ -32,7 +34,7 @@ type PanelDef = {
 // Your lib's components are prop-less views over ChessContext, so a panel
 // is just a name -> component mapping. The dock knows nothing about chess.
 export const PANELS: Record<PanelId, PanelDef> = {
-  board: { title: 'Board', component: () => <Chessboard /> },
+  board: { title: 'Board', component: () => <EngineBoard /> },
   tree: {
     title: 'Move Tree',
     component: () => (
@@ -42,6 +44,7 @@ export const PANELS: Record<PanelId, PanelDef> = {
     ),
     position: { referencePanel: 'board', direction: 'right' },
   },
+  engines: { title: 'Engines', component: () => <EnginesPanel />, position: { referencePanel: 'tree', direction: 'inside' } },
   games: { title: 'Games', component: () => <GameSelector />, position: { referencePanel: 'tree', direction: 'inside' } },
   comment: { title: 'Comments', component: () => <CommentEditor />, position: { referencePanel: 'tree', direction: 'inside' } },
   nag: { title: 'Annotations', component: () => <NAGEditor />, position: { referencePanel: 'tree', direction: 'inside' } },
@@ -53,6 +56,7 @@ export const PANELS: Record<PanelId, PanelDef> = {
 export const DEFAULT_LAYOUT: PanelId[] = [
   'board',
   'tree',
+  'engines',
   'games',
   'comment',
   'nag',

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron')
 const path = require('path')
 const fs = require('fs/promises')
+const engines = require('./engines')
 
 // userData lives at ~/.config/ChessEdit (themes, saved layouts)
 app.setName('ChessEdit')
@@ -93,6 +94,25 @@ ipcMain.handle('load-layout', async () => {
 ipcMain.handle('save-layout', async (_event, json) => {
   await fs.writeFile(layoutPath(), json, 'utf-8')
 })
+
+// ── Engine profiles (userData/engines.json) ────────────────────────────────
+
+const enginesPath = () => path.join(app.getPath('userData'), 'engines.json')
+
+ipcMain.handle('load-engines', async () => {
+  try {
+    return await fs.readFile(enginesPath(), 'utf-8')
+  } catch {
+    return null
+  }
+})
+
+ipcMain.handle('save-engines', async (_event, json) => {
+  await fs.writeFile(enginesPath(), json, 'utf-8')
+})
+
+// Engine processes: UCI handshake, analysis, info streaming (see engines.js)
+engines.register(ipcMain, () => BrowserWindow.getAllWindows()[0] ?? null)
 
 // Custom title bar window controls
 ipcMain.on('window-minimize', (event) => {
@@ -188,6 +208,10 @@ ipcMain.handle('window-is-maximized', (event) => {
 })
 
 app.whenReady().then(createWindow)
+
+app.on('before-quit', () => {
+  engines.killAll()
+})
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit()
