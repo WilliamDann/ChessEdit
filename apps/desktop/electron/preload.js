@@ -42,6 +42,27 @@ contextBridge.exposeInMainWorld('engineHost', {
   },
 })
 
+contextBridge.exposeInMainWorld('db', {
+  // Local SQLite game databases (see electron/databases.js)
+  list: () => ipcRenderer.invoke('db-list'),
+  importPgn: () => ipcRenderer.invoke('db-import'),
+  searchPosition: (req) => ipcRenderer.invoke('db-search-position', req),
+  games: (req) => ipcRenderer.invoke('db-games', req),
+  loadGame: (req) => ipcRenderer.invoke('db-load-game', req),
+  remove: (req) => ipcRenderer.invoke('db-delete', req),
+  // Lichess opening explorer (fetched in the main process)
+  explorer: (req) => ipcRenderer.invoke('db-explorer', req),
+  // Lichess OAuth sign-in (browser flow; tokens stay in the main process)
+  signInLichess: () => ipcRenderer.invoke('db-lichess-signin'),
+  lichessSession: () => ipcRenderer.invoke('db-lichess-session'),
+  signOutLichess: () => ipcRenderer.invoke('db-lichess-signout'),
+  onImportProgress: (cb) => {
+    const handler = (_event, progress) => cb(progress)
+    ipcRenderer.on('db-import-progress', handler)
+    return () => ipcRenderer.removeListener('db-import-progress', handler)
+  },
+})
+
 contextBridge.exposeInMainWorld('windowControls', {
   minimize: () => ipcRenderer.send('window-minimize'),
   toggleMaximize: () => ipcRenderer.send('window-toggle-maximize'),

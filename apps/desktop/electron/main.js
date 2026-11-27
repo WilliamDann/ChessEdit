@@ -3,6 +3,8 @@ const path = require('path')
 const fs = require('fs/promises')
 const engines = require('./engines')
 const remotes = require('./remotes')
+const databases = require('./databases')
+const lichessAuth = require('./lichess-auth')
 
 // userData lives at ~/.config/ChessEdit (themes, saved layouts)
 app.setName('ChessEdit')
@@ -118,6 +120,12 @@ engines.register(ipcMain, () => BrowserWindow.getAllWindows()[0] ?? null)
 // Cloud analysis sources: Lichess cloud evals + ChessDB (see remotes.js)
 remotes.register(ipcMain)
 
+// Local game databases + Lichess opening explorer (see databases.js)
+databases.register(ipcMain)
+
+// Lichess OAuth sign-in for the community opening explorer (see lichess-auth.js)
+lichessAuth.register(ipcMain)
+
 // Custom title bar window controls
 ipcMain.on('window-minimize', (event) => {
   BrowserWindow.fromWebContents(event.sender)?.minimize()
@@ -215,6 +223,7 @@ app.whenReady().then(createWindow)
 
 app.on('before-quit', () => {
   engines.killAll()
+  databases.closeAll()
 })
 
 app.on('window-all-closed', () => {

@@ -12,12 +12,14 @@ import {
 } from 'chessboard'
 import EngineBoard from '../engines/EngineBoard'
 import EnginesPanel from '../engines/EnginesPanel'
+import DatabasePanel from '../database/DatabasePanel'
 
 export type PanelId =
   | 'board'
   | 'tree'
   | 'engines'
   | 'games'
+  | 'database'
   | 'comment'
   | 'nag'
   | 'variations'
@@ -46,6 +48,7 @@ export const PANELS: Record<PanelId, PanelDef> = {
   },
   engines: { title: 'Engines', component: () => <EnginesPanel />, position: { referencePanel: 'tree', direction: 'inside' } },
   games: { title: 'Games', component: () => <GameSelector />, position: { referencePanel: 'tree', direction: 'inside' } },
+  database: { title: 'Database', component: () => <DatabasePanel />, position: { referencePanel: 'games', direction: 'inside' } },
   comment: { title: 'Comments', component: () => <CommentEditor />, position: { referencePanel: 'tree', direction: 'inside' } },
   nag: { title: 'Annotations', component: () => <NAGEditor />, position: { referencePanel: 'tree', direction: 'inside' } },
   variations: { title: 'Variations', component: () => <VariationEditor />, position: { referencePanel: 'tree', direction: 'inside' } },
@@ -58,6 +61,7 @@ export const DEFAULT_LAYOUT: PanelId[] = [
   'tree',
   'engines',
   'games',
+  'database',
   'comment',
   'nag',
   'variations',

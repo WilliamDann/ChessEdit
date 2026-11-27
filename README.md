@@ -15,6 +15,7 @@ Open **Edit → Theme…** to personalize the app. Everything applies live:
 - **Piece theme** — 40+ piece sets, from the classic Staunton-style set to playful ones from lichess.org.
 - **Background transparency** — how much the window shows through.
 - **Window Layout** — customize your editor by snapping any UI element to the top, left, right or bottom like in an IDE.
+- **Database** — an opening explorer fed by your own game collections and the Lichess masters database. Import a PGN file (your games, a Lichess bulk download, …) and every board position shows the moves played there with win/draw/loss stats; click a move to play it or a game to load it. Lichess community games need authentication — use "Sign in with Lichess" (OAuth) or paste a free access token from lichess.org/account/oauth/token.
 
 ## For developers
 
